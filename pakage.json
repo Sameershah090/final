@@ -12,18 +12,3 @@
     "node-telegram-bot-api": "^0.54.0"
   }
 }
-
-export default function Component() {
-  return (
-    <div className="p-4 bg-gray-100 rounded-lg">
-      <h1 className="text-2xl font-bold mb-4">package.json</h1>
-      <p className="mb-2">This file defines the project dependencies and scripts:</p>
-      <ul className="list-disc pl-6 mb-4">
-        <li>Specifies the project name and version</li>
-        <li>Sets the main entry point to index.js</li>
-        <li>Defines the start script</li>
-        <li>Lists required dependencies</li>
-      </ul>
-    </div>
-  );
-}
