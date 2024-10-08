@@ -14,20 +14,64 @@ if (!botToken) {
 
 const bot = new TelegramBot(botToken, { polling: true });
 
+bot.on('polling_error', (error) => {
+  console.error('Polling error:', error);
+});
+
+bot.on('error', (error) => {
+  console.error('Bot error:', error);
+});
+
+app.get('/', (req, res) => {
+  res.send('Telegram File Proxy Bot is running!');
+});
+
+app.get('/health', (req, res) => {
+  res.status(200).send('OK');
+});
+
+app.get('/testbot', async (req, res) => {
+  try {
+    const me = await bot.getMe();
+    res.json(me);
+  } catch (error) {
+    console.error('Error testing bot:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 app.get('/download/:fileId', async (req, res) => {
   try {
     const fileId = req.params.fileId;
-    const file = await bot.getFile(fileId);
+    console.log(`Attempting to download file with ID: ${fileId}`);
+    
+    let file;
+    try {
+      file = await bot.getFile(fileId);
+    } catch (getFileError) {
+      console.error('Error getting file from Telegram:', getFileError);
+      return res.status(500).send(`Error getting file from Telegram: ${getFileError.message}`);
+    }
     
     if (!file || !file.file_path) {
+      console.error(`File not found for ID: ${fileId}`);
       return res.status(404).send('File not found');
     }
 
     const fileUrl = `https://api.telegram.org/file/bot${botToken}/${file.file_path}`;
-    const response = await fetch(fileUrl);
+    console.log(`Fetching file from URL: ${fileUrl}`);
+    
+    let response;
+    try {
+      response = await fetch(fileUrl);
+    } catch (fetchError) {
+      console.error('Error fetching file:', fetchError);
+      return res.status(500).send(`Error fetching file: ${fetchError.message}`);
+    }
 
     if (!response.ok) {
-      return res.status(response.status).send('Error fetching file from Telegram');
+      console.error(`Error fetching file from Telegram. Status: ${response.status}`);
+      return res.status(response.status).send(`Error fetching file from Telegram: ${response.statusText}`);
     }
 
     res.setHeader('Content-Disposition', `attachment; filename="${file.file_path.split('/').pop()}"`);
@@ -35,8 +79,8 @@ app.get('/download/:fileId', async (req, res) => {
 
     response.body.pipe(res);
   } catch (error) {
-    console.error('Error:', error);
-    res.status(500).send('Internal Server Error');
+    console.error('Unexpected error in download route:', error);
+    res.status(500).send('Internal Server Error: ' + error.message);
   }
 });
 
