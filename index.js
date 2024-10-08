@@ -51,19 +51,3 @@ bot.on('document', (msg) => {
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
-
-export default function Component() {
-  return (
-    <div className="p-4 bg-gray-100 rounded-lg">
-      <h1 className="text-2xl font-bold mb-4">Telegram File Proxy Bot</h1>
-      <p className="mb-2">This is the main application file that:</p>
-      <ul className="list-disc pl-6 mb-4">
-        <li>Sets up an Express server</li>
-        <li>Creates a Telegram bot instance</li>
-        <li>Handles file download requests</li>
-        <li>Responds to document messages with download links</li>
-      </ul>
-      <p className="text-sm text-gray-600">Note: Make sure to set the BOT_TOKEN and APP_URL environment variables.</p>
-    </div>
-  );
-}
